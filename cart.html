@@ -1,50 +1,97 @@
-<script src="https://unpkg.com/redux@4.2.1/dist/redux.min.js"></script>
-<script src="redux/store.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shopping Cart - GreenLeaf Plants</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/redux@4.2.1/dist/redux.min.js"></script>
+  <script src="redux/store.js"></script>
+</head>
+<body class="products-page">
+  <header>
+    <h2>GreenLeaf Plants</h2>
+    <nav>
+      <a href="productListing.html">Products</a>
+      <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+    </nav>
+  </header>
 
-<main>
+  <main>
     <h3>Your Cart</h3>
     <p>Total Items: <span id="total-items">0</span></p>
-    <p>Total Cost: $<span id="total-cost">0</span></p>
+    <p>Total Cost: $<span id="total-cost">0.00</span></p>
 
     <div id="cart-container"></div>
 
-    <button onclick="alert('Coming Soon!')">Checkout</button>
-    <button onclick="location.href='productListing.html'">Continue Shopping</button>
-</main>
+    <div class="cart-controls">
+      <button onclick="alert('Coming Soon!')">Checkout</button>
+      <button onclick="location.href='productListing.html'">Continue Shopping</button>
+    </div>
+  </main>
 
-<script>
+  <footer>
+    <p>&copy; GreenLeaf Plants</p>
+  </footer>
+
+  <script>
     function renderCart() {
-        const state = store.getState();
-        const cartContainer = document.getElementById("cart-container");
-        cartContainer.innerHTML = "";
+      const state = store.getState();
+      const cartContainer = document.getElementById("cart-container");
+      cartContainer.innerHTML = "";
 
-        let totalCost = 0;
-        let totalItems = 0;
+      let totalCost = 0;
+      let totalItems = 0;
 
-        state.cartItems.forEach(plant => {
-            totalCost += plant.price * plant.quantity;
-            totalItems += plant.quantity;
+      if (state.cartItems.length === 0) {
+        cartContainer.innerHTML = "<p>Your cart is empty. <a href='productListing.html'>Start shopping</a></p>";
+      }
 
-            const div = document.createElement("div");
-            div.className = "cart-item";
-            div.innerHTML = `
-                <img src="${plant.img}" alt="${plant.name}" width="50">
-                <span>${plant.name} - $${plant.price} x ${plant.quantity}</span>
-                <button onclick="increase(${plant.id})">+</button>
-                <button onclick="decrease(${plant.id})">-</button>
-                <button onclick="removeItem(${plant.id})">Delete</button>
-            `;
-            cartContainer.appendChild(div);
-        });
+      state.cartItems.forEach(plant => {
+        totalCost += plant.price * plant.quantity;
+        totalItems += plant.quantity;
 
-        document.getElementById("total-items").innerText = totalItems;
-        document.getElementById("total-cost").innerText = totalCost.toFixed(2);
-        document.getElementById("cart-count").innerText = totalItems;
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.innerHTML = `
+          <img src="${plant.img}" alt="${plant.name}" width="60">
+          <div class="cart-item-info">
+            <div class="cart-item-title">${plant.name}</div>
+            <div>Unit: $${plant.price.toFixed(2)}</div>
+            <div>Subtotal: $${(plant.price * plant.quantity).toFixed(2)}</div>
+          </div>
+          <div class="cart-item-controls">
+            <button onclick="increase(${plant.id})">+</button>
+            <span class="qty">${plant.quantity}</span>
+            <button onclick="decrease(${plant.id})">-</button>
+            <button onclick="removeItem(${plant.id})" class="delete-btn">Delete</button>
+          </div>
+        `;
+        cartContainer.appendChild(div);
+      });
+
+      document.getElementById("total-items").innerText = totalItems;
+      document.getElementById("total-cost").innerText = totalCost.toFixed(2);
+      document.getElementById("cart-count").innerText = totalItems;
     }
 
-    function increase(id) { store.dispatch({ type: "INCREMENT_ITEM", payload: id }); renderCart(); }
-    function decrease(id) { store.dispatch({ type: "DECREMENT_ITEM", payload: id }); renderCart(); }
-    function removeItem(id) { store.dispatch({ type: "REMOVE_ITEM", payload: id }); renderCart(); }
+    function increase(id) {
+      store.dispatch({ type: "INCREMENT_ITEM", payload: id });
+      renderCart();
+    }
+    function decrease(id) {
+      store.dispatch({ type: "DECREMENT_ITEM", payload: id });
+      renderCart();
+    }
+    function removeItem(id) {
+      store.dispatch({ type: "REMOVE_ITEM", payload: id });
+      renderCart();
+    }
 
+    // Render initially using persisted state
     renderCart();
-</script>
+
+    // Update display if store changes externally
+    store.subscribe(renderCart);
+  </script>
+</body>
+</html>
