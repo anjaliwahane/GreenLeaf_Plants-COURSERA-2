@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Products - GreenLeaf Plants</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/redux@4.2.1/dist/redux.min.js"></script>
+    <script src="redux/reducers.js"></script>
+    <script src="redux/actions.js"></script>
+    <script src="redux/store.js"></script>
+</head>
+
+<body class="products-page">
+    <header>
+        <h2>GreenLeaf Plants</h2>
+        <nav>
+            <a href="productListing.html">Products</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        </nav>
+    </header>
+
+    <main>
+        <h3>Our Houseplants</h3>
+        <div class="categories">
+            <h4>Indoor Plants</h4>
+            <div class="plant-grid" id="indoor"></div>
+
+            <h4>Flowering Plants</h4>
+            <div class="plant-grid" id="flowering"></div>
+
+            <h4>Air-Purifying Plants</h4>
+            <div class="plant-grid" id="airPurifying"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Want to go back? <a href="index.html">Return to Landing Page</a></p>
+    </footer>
+
+    <script>
+        const plants = [
+            { id: 1, name: "Monstera", price: 25, category: "indoor", img: "Monstera.jpg" },
+            { id: 2, name: "Peace Lily", price: 30, category: "flowering", img: "Peace Lily.jpg" },
+            { id: 3, name: "Snake Plant", price: 20, category: "airPurifying", img: "Snake Plant.jpg" },
+            { id: 4, name: "Aloe Vera", price: 15, category: "indoor", img: "Aloe Vera.jpg" },
+            { id: 5, name: "Orchid", price: 35, category: "flowering", img: "Orchid.jpg" },
+            { id: 6, name: "Spider Plant", price: 18, category: "airPurifying", img: "Spider Plant.jpg" },
+        ];
+
+        function renderPlants() {
+            plants.forEach(plant => {
+                const container = document.getElementById(plant.category);
+                const div = document.createElement("div");
+                div.className = "plant-card";
+                div.innerHTML = `
+                    <img src="${plant.img}" alt="${plant.name}">
+                    <h5>${plant.name}</h5>
+                    <p>$${plant.price}</p>
+                    <button id="btn-${plant.id}">Add to Cart</button>
+                `;
+                container.appendChild(div);
+
+                document.getElementById(`btn-${plant.id}`).onclick = () => {
+                    store.dispatch({ type: "ADD_TO_CART", payload: plant });
+                    document.getElementById("cart-count").innerText = store.getState().cartItems.length;
+                    document.getElementById(`btn-${plant.id}`).disabled = true;
+                };
+            });
+            // Update cart icon on page load
+            document.getElementById("cart-count").innerText = store.getState().cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+        }
+
+        renderPlants();
+    </script>
+</body>
+
+</html>

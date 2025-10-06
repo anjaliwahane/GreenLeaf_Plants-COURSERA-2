@@ -1,0 +1,50 @@
+<script src="https://unpkg.com/redux@4.2.1/dist/redux.min.js"></script>
+<script src="redux/store.js"></script>
+
+<main>
+    <h3>Your Cart</h3>
+    <p>Total Items: <span id="total-items">0</span></p>
+    <p>Total Cost: $<span id="total-cost">0</span></p>
+
+    <div id="cart-container"></div>
+
+    <button onclick="alert('Coming Soon!')">Checkout</button>
+    <button onclick="location.href='productListing.html'">Continue Shopping</button>
+</main>
+
+<script>
+    function renderCart() {
+        const state = store.getState();
+        const cartContainer = document.getElementById("cart-container");
+        cartContainer.innerHTML = "";
+
+        let totalCost = 0;
+        let totalItems = 0;
+
+        state.cartItems.forEach(plant => {
+            totalCost += plant.price * plant.quantity;
+            totalItems += plant.quantity;
+
+            const div = document.createElement("div");
+            div.className = "cart-item";
+            div.innerHTML = `
+                <img src="${plant.img}" alt="${plant.name}" width="50">
+                <span>${plant.name} - $${plant.price} x ${plant.quantity}</span>
+                <button onclick="increase(${plant.id})">+</button>
+                <button onclick="decrease(${plant.id})">-</button>
+                <button onclick="removeItem(${plant.id})">Delete</button>
+            `;
+            cartContainer.appendChild(div);
+        });
+
+        document.getElementById("total-items").innerText = totalItems;
+        document.getElementById("total-cost").innerText = totalCost.toFixed(2);
+        document.getElementById("cart-count").innerText = totalItems;
+    }
+
+    function increase(id) { store.dispatch({ type: "INCREMENT_ITEM", payload: id }); renderCart(); }
+    function decrease(id) { store.dispatch({ type: "DECREMENT_ITEM", payload: id }); renderCart(); }
+    function removeItem(id) { store.dispatch({ type: "REMOVE_ITEM", payload: id }); renderCart(); }
+
+    renderCart();
+</script>
